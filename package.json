@@ -1,0 +1,28 @@
+{
+  "name": "harkawal",
+  "version": "1.0.0",
+  "description": "A blazing-fast, zero-dependency Static Site Generator for modern Bootstrap websites.",
+  "main": "bin/cli.js",
+  "bin": {
+    "harkawal": "./bin/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "harkawal",
+    "framework",
+    "static",
+    "site",
+    "generator",
+    "ssg",
+    "bootstrap",
+    "zero-dependency"
+  ],
+  "author": "Dr. Harkawal",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/harkawaljeetsingh/harkawal.git"
+  }
+}
