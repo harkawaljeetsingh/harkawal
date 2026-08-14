@@ -1,6 +1,6 @@
 # Harkawal Framework
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)
 
@@ -10,12 +10,14 @@ A blazing-fast, zero-dependency Static Site Generator designed for building beau
 
 We built this tool completely from scratch in Node.js because we wanted to solve a simple problem: **How do we achieve a modern, component-based architecture (like reusable Navbars and Footers) while maintaining the pure speed and simplicity of raw HTML?**
 
-Harkawal Framework v1.0.0 gives you the power of modern architecture (Global Layouts, Clean URLs, Auto-SEO) using 100% pure HTML string manipulation.
+Harkawal Framework v1.1.0 gives you the power of modern architecture (Global Layouts, Clean URLs, Auto-SEO) using 100% pure HTML string manipulation.
 
 ## 🚀 Features
 
 - **🧩 Global Layouts:** Never write `<html>` or `<body>` tags again. Write pure content, and the compiler automatically wraps your `src/layout.html` around it!
-- **🎨 Premium Built-in Themes:** Instantly switch between stunning Glassmorphism CSS themes (`emerald`, `oceanic`, `crimson`).
+- **🎨 Built-in Premium Themes**: Instantly switch between glassmorphism `emerald`, `oceanic`, or `crimson` themes.
+- 🚨 **Custom 404 Pages**: Auto-scaffolded, premium error pages that inherit your layout and themes.
+- 🚀 **Zero Dependencies**: Pure Node.js. No `node_modules` weighing down your project.
 - **🔗 Clean URLs & Auto-Routing:** Filenames automatically lose the `.html` extension (e.g., `/about`), and your internal `<a href="about.html">` links are magically rewritten for you.
 - **⚡ Zero-Dependency Minification:** Our built-in Regex engine crushes your HTML to remove whitespace and drastically improve load times.
 - **🔍 Client-Side Search Engine:** Automatically indexes all your pages and generates a `search-data.js` database.
@@ -82,13 +84,13 @@ Your professional website will instantly be available at `http://localhost:3000`
 The framework provides beautiful, native console output so you know exactly what is happening during compilation.
 
 ```text
-🚀 Harkawal Framework v1.0.0: Starting build...
+🚀 Harkawal Framework v1.1.0: Starting build...
 📁 Copying public assets...
 🎨 Theme injected: emerald
 🏗️  Global layout loaded.
 ✅ Sitemap created.
 ✅ Search index created.
-🎉 v1.0.0 Build complete! Check dist/ folder.
+🎉 v1.1.0 Build complete! Check dist/ folder.
 ```
 
 ## 📝 License

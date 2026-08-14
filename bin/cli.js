@@ -49,8 +49,14 @@ if (process.argv[2] === 'serve') {
         fs.readFile(filePath, (error, content) => {
             if (error) {
                 if (error.code === 'ENOENT') {
-                    res.writeHead(404, { 'Content-Type': 'text/html' });
-                    res.end('<h1>404 Not Found</h1><p>Harkawal Framework Native Server</p>', 'utf-8');
+                    const errorPagePath = path.join(distDir, '404.html');
+                    if (fs.existsSync(errorPagePath)) {
+                        res.writeHead(404, { 'Content-Type': 'text/html' });
+                        res.end(fs.readFileSync(errorPagePath, 'utf-8'), 'utf-8');
+                    } else {
+                        res.writeHead(404, { 'Content-Type': 'text/html' });
+                        res.end('<h1>404 Not Found</h1><p>Harkawal Framework Native Server</p>', 'utf-8');
+                    }
                 } else {
                     res.writeHead(500);
                     res.end('Internal Server Error: ' + error.code, 'utf-8');
@@ -120,6 +126,18 @@ if (process.argv[2] === 'init') {
 </div>`;
     fs.writeFileSync(path.join(srcPagesDir, 'index.html'), indexContent, 'utf8');
     fs.writeFileSync(path.join(srcPagesDir, 'about.html'), `<!-- title: About Us -->\n<div class="container mt-5"><h1>About Us</h1><p>This is a generated about page.</p></div>`, 'utf8');
+
+    // 404 Error Page
+    const errorPageContent = `<!-- title: 404 - Page Not Found -->
+<div class="container mt-5 text-center" style="min-height: 60vh; display: flex; align-items: center; justify-content: center;">
+    <div class="tt-glass-panel p-5 w-100">
+        <h1 class="display-1 fw-bold text-danger">404</h1>
+        <h2 class="display-6 fw-bold">Page Not Found</h2>
+        <p class="fs-5 mt-3">The page you are looking for does not exist or has been moved.</p>
+        <a href="index.html" class="btn btn-custom btn-lg mt-4">Return Home</a>
+    </div>
+</div>`;
+    fs.writeFileSync(path.join(srcPagesDir, '404.html'), errorPageContent, 'utf8');
 
     // Components
     const navbarContent = `<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -237,7 +255,7 @@ function minifyHtml(html) {
 }
 
 function build() {
-    console.log('🚀 Harkawal Framework v1.0.0: Starting build...');
+    console.log('🚀 Harkawal Framework v1.1.0: Starting build...');
     const config = getConfig();
     
     console.log('📁 Copying public assets...');
@@ -301,7 +319,7 @@ function build() {
         }
 
         let finalUrlPath = page;
-        if (config.cleanUrls && page !== 'index.html') {
+        if (config.cleanUrls && page !== 'index.html' && page !== '404.html') {
             const folderName = page.replace('.html', '');
             const folderPath = path.join(distDir, folderName);
             if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true });
@@ -333,7 +351,7 @@ function build() {
         console.log('✅ Search index created.');
     }
 
-    console.log('🎉 v1.0.0 Build complete! Check dist/ folder.');
+    console.log('🎉 v1.1.0 Build complete! Check dist/ folder.');
 }
 
 build();
