@@ -1,6 +1,6 @@
 # Harkawal Framework
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.1-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)
 
@@ -10,7 +10,7 @@ A blazing-fast, zero-dependency Static Site Generator designed for building beau
 
 We built this tool completely from scratch in Node.js because we wanted to solve a simple problem: **How do we achieve a modern, component-based architecture (like reusable Navbars and Footers) while maintaining the pure speed and simplicity of raw HTML?**
 
-Harkawal Framework v1.1.0 gives you the power of modern architecture (Global Layouts, Clean URLs, Auto-SEO) using 100% pure HTML string manipulation.
+Harkawal Framework v1.1.1 gives you the power of modern architecture (Global Layouts, Clean URLs, Auto-SEO) using 100% pure HTML string manipulation.
 
 ## 🚀 Features
 
@@ -84,13 +84,13 @@ Your professional website will instantly be available at `http://localhost:3000`
 The framework provides beautiful, native console output so you know exactly what is happening during compilation.
 
 ```text
-🚀 Harkawal Framework v1.1.0: Starting build...
+🚀 Harkawal Framework v1.1.1: Starting build...
 📁 Copying public assets...
 🎨 Theme injected: emerald
 🏗️  Global layout loaded.
 ✅ Sitemap created.
 ✅ Search index created.
-🎉 v1.1.0 Build complete! Check dist/ folder.
+🎉 v1.1.1 Build complete! Check dist/ folder.
 ```
 
 ## 📝 License

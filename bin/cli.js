@@ -90,7 +90,9 @@ if (process.argv[2] === 'init') {
         minify: true,
         theme: "emerald"
     };
-    fs.writeFileSync(configPath, JSON.stringify(configData, null, 2), 'utf8');
+    if (!fs.existsSync(configPath)) {
+        fs.writeFileSync(configPath, JSON.stringify(configData, null, 2), 'utf8');
+    }
 
     // Layout
     const layoutContent = `<!DOCTYPE html>
@@ -143,9 +145,14 @@ if (process.argv[2] === 'init') {
     const navbarContent = `<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
     <a class="navbar-brand" href="index.html">Harkawal</a>
-    <div class="navbar-nav ms-auto">
-      <a class="nav-link" href="index.html">Home</a>
-      <a class="nav-link" href="about.html">About</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="navbar-nav ms-auto">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="about.html">About</a>
+      </div>
     </div>
   </div>
 </nav>`;
@@ -201,8 +208,14 @@ body { background-color: var(--bg-color); color: var(--text-color); font-family:
     `;
     
     fs.writeFileSync(path.join(srcStylesDir, 'themes', 'emerald.css'), baseCss, 'utf8');
-    fs.writeFileSync(path.join(srcStylesDir, 'themes', 'oceanic.css'), baseCss.replace(/#10b981/g, '#3b82f6').replace(/059669/g, '2563eb'), 'utf8');
-    fs.writeFileSync(path.join(srcStylesDir, 'themes', 'crimson.css'), baseCss.replace(/#10b981/g, '#ef4444').replace(/059669/g, 'dc2626'), 'utf8');
+    
+    let oceanicCss = baseCss.replace(/#10b981/g, '#3b82f6').replace(/059669/g, '2563eb');
+    oceanicCss = oceanicCss.replace('--bg-color: #121212', '--bg-color: #0a1128');
+    fs.writeFileSync(path.join(srcStylesDir, 'themes', 'oceanic.css'), oceanicCss, 'utf8');
+    
+    let crimsonCss = baseCss.replace(/#10b981/g, '#ef4444').replace(/059669/g, 'dc2626');
+    crimsonCss = crimsonCss.replace('--bg-color: #121212', '--bg-color: #240b0f');
+    fs.writeFileSync(path.join(srcStylesDir, 'themes', 'crimson.css'), crimsonCss, 'utf8');
 
     console.log('✅ Project scaffolded successfully! Run `harkawal` to compile it.');
     process.exit(0);
@@ -255,7 +268,7 @@ function minifyHtml(html) {
 }
 
 function build() {
-    console.log('🚀 Harkawal Framework v1.1.0: Starting build...');
+    console.log('🚀 Harkawal Framework v1.1.1: Starting build...');
     const config = getConfig();
     
     console.log('📁 Copying public assets...');
@@ -351,7 +364,7 @@ function build() {
         console.log('✅ Search index created.');
     }
 
-    console.log('🎉 v1.1.0 Build complete! Check dist/ folder.');
+    console.log('🎉 v1.1.1 Build complete! Check dist/ folder.');
 }
 
 build();

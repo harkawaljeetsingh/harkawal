@@ -1,6 +1,6 @@
 # Harkawal Framework - Comprehensive User Manual
 
-Welcome to the official User Manual for **Harkawal Framework v1.1.0**. 
+Welcome to the official User Manual for **Harkawal Framework v1.1.1**. 
 This guide will take you from installation to deploying a blazing-fast, zero-dependency, component-based Bootstrap website using pure HTML string manipulation.
 
 ---
