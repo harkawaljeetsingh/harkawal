@@ -1,0 +1,115 @@
+/* Font and Core Base */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #334155;
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #0f172a;
+    font-weight: 600;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: 2.5rem;
+    letter-spacing: -0.025em;
+    margin-top: 0;
+}
+
+h2 {
+    font-size: 1.75rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+/* Sidebar Layout */
+.docs-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+/* Sidebar Navigation */
+.docs-nav-link {
+    color: #64748b;
+    padding: 0.35rem 0.5rem;
+    display: block;
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.docs-nav-link:hover {
+    color: #0f172a;
+    background-color: #f8fafc;
+}
+
+.docs-nav-link.active {
+    color: #2563eb;
+    font-weight: 500;
+    background-color: #eff6ff;
+}
+
+.docs-nav-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+/* Main Content Typography */
+.docs-content p {
+    margin-bottom: 1.25rem;
+}
+
+.docs-content a {
+    color: #2563eb;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.docs-content a:hover {
+    color: #1d4ed8;
+}
+
+/* Code Blocks & Inline Code */
+code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875em;
+    color: #db2777;
+    background-color: #f1f5f9;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+}
+
+pre {
+    background-color: #0f172a;
+    padding: 1.25rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+pre code {
+    color: #e2e8f0;
+    background-color: transparent;
+    padding: 0;
+}
+
+/* Custom UI utilities */
+.hover-shadow {
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.hover-shadow:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}

@@ -1,6 +1,6 @@
 # Harkawal Framework - Comprehensive User Manual
 
-Welcome to the official User Manual for **Harkawal Framework v1.1.1**. 
+Welcome to the official User Manual for **Harkawal Framework v1.2.0**. 
 This guide will take you from installation to deploying a blazing-fast, zero-dependency, component-based Bootstrap website using pure HTML string manipulation.
 
 ---
@@ -55,9 +55,10 @@ my-website/
 ├── harkawal.config.json     # Configuration file
 ├── public/                  # Static assets (images, favicon)
 ├── src/
-│   ├── layout.html          # Global HTML wrapper
-│   ├── components/          # Reusable HTML snippets
-│   ├── styles/themes/       # Custom CSS themes (optional)
+│   ├── themes/emerald/      # The structural theme folder
+│   │   ├── layout.html      # Theme-specific HTML wrapper
+│   │   ├── components/      # Theme-specific HTML snippets
+│   │   └── theme.css        # Theme-specific CSS
 │   └── pages/               # Your actual pages
 ```
 
@@ -74,7 +75,8 @@ The entire framework is controlled by simple boolean flags. Create a `harkawal.c
   "search": true,
   "cleanUrls": true,
   "minify": true,
-  "theme": "emerald"
+  "theme": "emerald",
+  "disallow": []
 }
 ```
 
@@ -84,7 +86,8 @@ The entire framework is controlled by simple boolean flags. Create a `harkawal.c
 - **`search`**: Parses your HTML and creates a searchable `search-data.js` database.
 - **`cleanUrls`**: Strips `.html` from your files (e.g., `/about.html` becomes `/about/index.html`) and auto-rewrites all internal links to look professional.
 - **`minify`**: A zero-dependency engine that crushes your HTML, removing all whitespace for extreme performance.
-- **`theme`**: Selects a premium built-in CSS theme. (Available: `emerald`, `oceanic`, `crimson`).
+- **`theme`**: Selects a premium built-in CSS theme. (Available: `emerald`, `resort`, `docs`).
+- **`disallow`**: An array of paths (e.g., `["/private", "/admin"]`) that tells the compiler to completely hide those pages from the generated `robots.txt`, `sitemap.xml`, and the internal search engine database.
 
 ---
 
@@ -92,8 +95,8 @@ The entire framework is controlled by simple boolean flags. Create a `harkawal.c
 
 Harkawal Framework uses a **Global Layout System**. You never have to write repetitive HTML (`<html>`, `<head>`, `<body>`) inside your actual pages.
 
-### Step 1: Create `src/layout.html`
-This is your master wrapper. Use the `<slot></slot>` tag to tell the compiler where to inject your pages:
+### Step 1: Create `src/themes/[themeName]/layout.html`
+This is your master wrapper for the active theme. Use the `<slot></slot>` tag to tell the compiler where to inject your pages:
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -127,7 +130,7 @@ Inside `src/pages/index.html`, write pure HTML content. You can override the SEO
 
 ## 🧱 7. The Component System
 
-To reuse pieces of code across your site (like a Navbar, Footer, or Searchbar), put them inside the `src/components/` folder.
+To reuse pieces of code across your site (like a Navbar, Footer, or Searchbar), put them inside your active theme's components folder (e.g., `src/themes/emerald/components/`).
 
 You can inject them into any page or layout using the custom `<include>` tag:
 ```html
@@ -137,16 +140,25 @@ The compiler will instantly replace that tag with the actual contents of the com
 
 ---
 
-## 🎨 8. Theming System
+## 🎨 8. Structural Theming System (v1.2.0)
 
-Harkawal Framework ships with three premium Glassmorphism themes (`emerald`, `oceanic`, `crimson`). By defining `"theme": "emerald"` in your config, the compiler will automatically copy that theme and inject a `<link rel="stylesheet">` into the `<head>` of your layout.
+Harkawal Framework v1.2.0 introduces **Structural Themes**. Themes are no longer just CSS files; they are entire folders that dictate the HTML structure of your website.
 
-You do not need to manually link CSS files. Just write standard Bootstrap classes, and the active theme will automatically apply dark-mode, glowing borders, and glass effects.
+When you define `"theme": "emerald"` in your config, the compiler will look inside `src/themes/emerald/` for:
+1. `layout.html` (The HTML structure)
+2. `components/` (Theme-specific navbars, footers, etc.)
+3. `theme.css` (The styling)
 
 ### Creating Custom Themes
-The beauty of this framework is its infinite extensibility. If you want a custom theme (like `"theme": "peach"`), all you have to do is create a new file named `peach.css` inside your `src/styles/themes/` folder. 
+The beauty of this framework is its infinite extensibility. If you want to build a completely custom 'dashboard' theme, all you have to do is:
+1. Create a folder: `src/themes/dashboard/`
+2. Put your own `layout.html` inside it (with sidebars, widgets, or whatever HTML structure you want).
+3. Put your own `theme.css` in there.
+4. Update your config to `"theme": "dashboard"`.
 
-As soon as you put a file there and update your config, the framework will automatically detect it, copy it, and apply it to your entire website seamlessly! If you specify a theme that doesn't exist, the compiler is smart enough not to crash; it will simply fall back to the default Bootstrap styling.
+The compiler will automatically switch over and use your completely custom HTML structure and styling!
+
+*Note: For backwards compatibility with v1.1.1, if a theme folder is not found, the compiler will fall back to looking for a global `src/layout.html`.*
 
 ---
 
@@ -173,11 +185,11 @@ If you put a file named `favicon.ico` into the `public/` folder, the framework w
 
 ## 🧭 10. Managing the Navigation Bar
 
-When you run `harkawal init`, a default Navigation Bar is generated for you at **`src/components/navbar.html`**. 
+When you run `harkawal init emerald`, a default Navigation Bar is generated for you at **`src/themes/emerald/components/navbar.html`**. 
 
 Because this framework automatically injects the full Bootstrap 5 engine (including its Javascript), you have access to powerful components like Dropdowns right out of the box.
 
-If you have many pages and want to organize them into a Dropdown Menu, simply open `src/components/navbar.html` and paste in this standard Bootstrap dropdown code:
+If you have many pages and want to organize them into a Dropdown Menu, simply open `src/themes/emerald/components/navbar.html` and paste in this standard Bootstrap dropdown code:
 
 ```html
 <div class="nav-item dropdown">

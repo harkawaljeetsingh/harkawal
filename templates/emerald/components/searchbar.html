@@ -1,0 +1,36 @@
+<div class="harkawal-search-wrapper">
+    <div class="input-group">
+        <span class="input-group-text bg-transparent border-0 text-white-50 position-absolute" style="z-index: 5; left: 10px; top: 12px;"><i class="bi bi-search"></i></span>
+        <input type="text" id="hk-search-input" class="form-control" placeholder="Search documentation..." autocomplete="off" style="padding-left: 2.5rem;">
+    </div>
+    <div id="hk-search-results" class="list-group position-absolute w-100" style="display: none; z-index: 1000;"></div>
+</div>
+<script src="/search-data.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById('hk-search-input');
+    const results = document.getElementById('hk-search-results');
+    if(input) {
+        input.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            results.innerHTML = '';
+            if (query.length < 2) { results.style.display = 'none'; return; }
+            if(window.hkSearchData) {
+                const filtered = window.hkSearchData.filter(i => i.title.toLowerCase().includes(query) || i.content.toLowerCase().includes(query));
+                if (filtered.length > 0) {
+                    results.style.display = 'block';
+                    filtered.slice(0, 5).forEach(item => {
+                        const a = document.createElement('a'); a.href = item.url; 
+                        a.className = 'list-group-item list-group-item-action border-bottom'; 
+                        a.innerHTML = `<strong>${item.title}</strong>`; 
+                        results.appendChild(a);
+                    });
+                } else {
+                    results.style.display = 'block'; results.innerHTML = '<div class="list-group-item text-muted">No results found</div>';
+                }
+            }
+        });
+        document.addEventListener('click', (e) => { if (!e.target.closest('.harkawal-search-wrapper')) results.style.display = 'none'; });
+    }
+});
+</script>

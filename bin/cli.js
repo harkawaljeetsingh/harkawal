@@ -12,7 +12,7 @@ const configPath = path.join(process.cwd(), 'harkawal.config.json');
 const layoutPath = path.join(process.cwd(), 'src', 'layout.html');
 
 function ensureDirectories() {
-    [distDir, srcPagesDir, srcComponentsDir, path.join(srcStylesDir, 'themes'), publicDir].forEach(dir => {
+    [distDir, srcPagesDir, srcComponentsDir, path.join(srcStylesDir, 'themes'), path.join(process.cwd(), 'src', 'themes'), publicDir].forEach(dir => {
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     });
 }
@@ -30,7 +30,8 @@ if (process.argv[2] === 'serve') {
     const mimeTypes = {
         '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript',
         '.ico': 'image/x-icon', '.png': 'image/png', '.jpg': 'image/jpeg',
-        '.svg': 'image/svg+xml', '.json': 'application/json', '.xml': 'application/xml'
+        '.svg': 'image/svg+xml', '.json': 'application/json', '.xml': 'application/xml',
+        '.txt': 'text/plain'
     };
 
     const server = http.createServer((req, res) => {
@@ -78,56 +79,75 @@ if (process.argv[2] === 'serve') {
 
 // --- INIT COMMAND ---
 if (process.argv[2] === 'init') {
-    console.log('🚀 Initializing new Harkawal Framework project...');
+    const targetThemeName = process.argv[3] || 'emerald';
+    console.log(`🚀 Initializing new Harkawal Framework project (v1.2.0) with theme: ${targetThemeName}...`);
+    
+    const templateDir = path.join(__dirname, '..', 'templates', targetThemeName);
+    if (!fs.existsSync(templateDir)) {
+        console.error(`❌ Error: Theme template '${targetThemeName}' not found in framework templates folder.`);
+        process.exit(1);
+    }
+
     ensureDirectories();
     
-    // Config
-    const configData = {
+    let configData = {
         baseUrl: "https://www.example.com",
         sitemap: true,
         search: true,
         cleanUrls: true,
         minify: true,
-        theme: "emerald"
+        theme: targetThemeName,
+        disallow: []
     };
-    if (!fs.existsSync(configPath)) {
-        fs.writeFileSync(configPath, JSON.stringify(configData, null, 2), 'utf8');
+    if (fs.existsSync(configPath)) {
+        try {
+            configData = { ...configData, ...JSON.parse(fs.readFileSync(configPath, 'utf8')) };
+        } catch(e) {}
+    }
+    configData.theme = targetThemeName;
+    fs.writeFileSync(configPath, JSON.stringify(configData, null, 2), 'utf8');
+
+    const defaultThemeDir = path.join(process.cwd(), 'src', 'themes', targetThemeName);
+    fs.mkdirSync(defaultThemeDir, { recursive: true });
+
+    // 1. Copy Layout and CSS
+    if (fs.existsSync(path.join(templateDir, 'layout.html'))) {
+        fs.copyFileSync(path.join(templateDir, 'layout.html'), path.join(defaultThemeDir, 'layout.html'));
+    }
+    if (fs.existsSync(path.join(templateDir, 'theme.css'))) {
+        fs.copyFileSync(path.join(templateDir, 'theme.css'), path.join(defaultThemeDir, 'theme.css'));
+    }
+    
+    // 2. Copy Components
+    // We must define copyFolderRecursiveSync early for init to use it
+    function copyFolderRecursiveSync(source, target) {
+        if (!fs.existsSync(source)) return;
+        if (!fs.existsSync(target)) fs.mkdirSync(target, { recursive: true });
+        
+        fs.readdirSync(source).forEach(file => {
+            const curSource = path.join(source, file);
+            const curTarget = path.join(target, file);
+            if (fs.lstatSync(curSource).isDirectory()) {
+                copyFolderRecursiveSync(curSource, curTarget);
+            } else {
+                fs.copyFileSync(curSource, curTarget);
+            }
+        });
     }
 
-    // Layout
-    const layoutContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Harkawal Framework</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <include src="navbar.html"></include>
-    <div class="container mt-3">
-        <include src="searchbar.html"></include>
-    </div>
-    <main style="flex: 1 0 auto;">
-        <slot></slot>
-    </main>
-    <include src="footer.html"></include>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>`;
-    fs.writeFileSync(layoutPath, layoutContent, 'utf8');
+    if (fs.existsSync(path.join(templateDir, 'components'))) {
+        copyFolderRecursiveSync(path.join(templateDir, 'components'), path.join(defaultThemeDir, 'components'));
+    }
 
-    // Index Page
-    const indexContent = `<!-- title: Welcome to Harkawal Framework -->
-<div class="container mt-5" style="min-height: 60vh;">
-    <div class="tt-glass-panel p-5 mb-4 text-center">
-        <h1 class="display-4 fw-bold">Welcome to Harkawal Framework</h1>
-        <p class="fs-4">You have successfully initialized a new project.</p>
-        <a href="about.html" class="btn btn-custom btn-lg mt-3">Learn More</a>
-    </div>
-</div>`;
-    fs.writeFileSync(path.join(srcPagesDir, 'index.html'), indexContent, 'utf8');
-    fs.writeFileSync(path.join(srcPagesDir, 'about.html'), `<!-- title: About Us -->\n<div class="container mt-5"><h1>About Us</h1><p>This is a generated about page.</p></div>`, 'utf8');
+    // 3. Copy Pages
+    if (fs.existsSync(path.join(templateDir, 'index.html'))) {
+        fs.copyFileSync(path.join(templateDir, 'index.html'), path.join(srcPagesDir, 'index.html'));
+    }
+    if (fs.existsSync(path.join(templateDir, 'about.html'))) {
+        fs.copyFileSync(path.join(templateDir, 'about.html'), path.join(srcPagesDir, 'about.html'));
+    } else {
+        fs.writeFileSync(path.join(srcPagesDir, 'about.html'), `<!-- title: About Us -->\n<div class="container mt-5"><h1>About Us</h1><p>This is a generated about page.</p></div>`, 'utf8');
+    }
 
     // 404 Error Page
     const errorPageContent = `<!-- title: 404 - Page Not Found -->
@@ -141,83 +161,7 @@ if (process.argv[2] === 'init') {
 </div>`;
     fs.writeFileSync(path.join(srcPagesDir, '404.html'), errorPageContent, 'utf8');
 
-    // Components
-    const navbarContent = `<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container">
-    <a class="navbar-brand" href="index.html">Harkawal</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <div class="navbar-nav ms-auto">
-        <a class="nav-link" href="index.html">Home</a>
-        <a class="nav-link" href="about.html">About</a>
-      </div>
-    </div>
-  </div>
-</nav>`;
-    fs.writeFileSync(path.join(srcComponentsDir, 'navbar.html'), navbarContent, 'utf8');
-    fs.writeFileSync(path.join(srcComponentsDir, 'footer.html'), `<footer class="bg-dark text-white text-center py-3 mt-auto"><p class="mb-0">&copy; 2026 Harkawal Framework</p></footer>`, 'utf8');
-    
-    const searchContent = `<div class="harkawal-search-wrapper position-relative">
-    <input type="text" id="hk-search-input" class="form-control" placeholder="Search..." autocomplete="off">
-    <div id="hk-search-results" class="list-group position-absolute w-100" style="z-index: 1000; display: none;"></div>
-</div>
-<script src="/search-data.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const input = document.getElementById('hk-search-input');
-    const results = document.getElementById('hk-search-results');
-    if(input) {
-        input.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            results.innerHTML = '';
-            if (query.length < 2) { results.style.display = 'none'; return; }
-            if(window.hkSearchData) {
-                const filtered = window.hkSearchData.filter(i => i.title.toLowerCase().includes(query) || i.content.toLowerCase().includes(query));
-                if (filtered.length > 0) {
-                    results.style.display = 'block';
-                    filtered.slice(0, 5).forEach(item => {
-                        const a = document.createElement('a'); a.href = item.url; a.className = 'list-group-item list-group-item-action'; a.innerHTML = \`<strong>\${item.title}</strong>\`; results.appendChild(a);
-                    });
-                } else {
-                    results.style.display = 'block'; results.innerHTML = '<div class="list-group-item text-muted">No results found</div>';
-                }
-            }
-        });
-        document.addEventListener('click', (e) => { if (!e.target.closest('.harkawal-search-wrapper')) results.style.display = 'none'; });
-    }
-});
-</script>`;
-    fs.writeFileSync(path.join(srcComponentsDir, 'searchbar.html'), searchContent, 'utf8');
-
-    // CSS Themes
-    const baseCss = `
-:root { --bg-color: #121212; --text-color: #ffffff; --glass-bg: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
-.bg-light { background-color: transparent !important; }
-.tt-glass-panel { background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-.btn-custom { background: var(--primary-gradient); border: none; color: white; padding: 10px 24px; border-radius: 8px; transition: all 0.3s ease; }
-.btn-custom:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3); color: white; }
-.harkawal-search-wrapper { max-width: 600px; margin: 0 auto; position: relative; }
-#hk-search-input { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: white; border-radius: 50px; padding: 0.8rem 1.5rem; backdrop-filter: blur(10px); transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-#hk-search-input:focus { background: rgba(255, 255, 255, 0.1); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4), 0 8px 30px rgba(0,0,0,0.4); border-color: #10b981; color: white; outline: none; }
-#hk-search-results { background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden; margin-top: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-#hk-search-results .list-group-item { background: transparent; color: var(--text-color); border-color: rgba(255,255,255,0.05); padding: 1rem 1.5rem; transition: all 0.2s ease; border-left: 4px solid transparent; }
-#hk-search-results .list-group-item:hover { background: rgba(16, 185, 129, 0.1); padding-left: 2rem; border-left: 4px solid #10b981; }
-    `;
-    
-    fs.writeFileSync(path.join(srcStylesDir, 'themes', 'emerald.css'), baseCss, 'utf8');
-    
-    let oceanicCss = baseCss.replace(/#10b981/g, '#3b82f6').replace(/059669/g, '2563eb');
-    oceanicCss = oceanicCss.replace('--bg-color: #121212', '--bg-color: #0a1128');
-    fs.writeFileSync(path.join(srcStylesDir, 'themes', 'oceanic.css'), oceanicCss, 'utf8');
-    
-    let crimsonCss = baseCss.replace(/#10b981/g, '#ef4444').replace(/059669/g, 'dc2626');
-    crimsonCss = crimsonCss.replace('--bg-color: #121212', '--bg-color: #240b0f');
-    fs.writeFileSync(path.join(srcStylesDir, 'themes', 'crimson.css'), crimsonCss, 'utf8');
-
-    console.log('✅ Project scaffolded successfully! Run `harkawal` to compile it.');
+    console.log(`✅ Project scaffolded successfully! Run \`harkawal\` to compile it.`);
     process.exit(0);
 }
 
@@ -228,7 +172,7 @@ ensureDirectories();
 const includeRegex = /<include\s+src=["'](.*?)["']\s*><\/include>/g;
 
 function getConfig() {
-    const def = { baseUrl: 'https://example.com', sitemap: false, search: false, cleanUrls: false, minify: false, theme: 'emerald' };
+    const def = { baseUrl: 'https://example.com', sitemap: false, search: false, cleanUrls: false, minify: false, theme: 'emerald', disallow: [] };
     if (fs.existsSync(configPath)) {
         try {
             return { ...def, ...JSON.parse(fs.readFileSync(configPath, 'utf8')) };
@@ -268,25 +212,46 @@ function minifyHtml(html) {
 }
 
 function build() {
-    console.log('🚀 Harkawal Framework v1.1.1: Starting build...');
+    console.log('🚀 Harkawal Framework v1.2.0: Starting build...');
+    
+    // Clean old dist folder to prevent stale files
+    if (fs.existsSync(distDir)) {
+        fs.rmSync(distDir, { recursive: true, force: true });
+    }
+    ensureDirectories();
+
     const config = getConfig();
     
     console.log('📁 Copying public assets...');
     copyFolderRecursiveSync(publicDir, distDir);
     
     const themeName = config.theme || 'emerald';
-    const themePath = path.join(srcStylesDir, 'themes', `${themeName}.css`);
+    const themeDir = path.join(process.cwd(), 'src', 'themes', themeName);
+    
+    // 1. Resolve Theme CSS (v1.2.0 Structural Theme vs Legacy CSS Theme)
+    const themeCssPath = path.join(themeDir, 'theme.css');
+    const legacyCssPath = path.join(srcStylesDir, 'themes', `${themeName}.css`);
     let hasTheme = false;
-    if (fs.existsSync(themePath)) {
-        fs.copyFileSync(themePath, path.join(distDir, 'theme.css'));
-        console.log(`🎨 Theme injected: ${themeName}`);
+    
+    if (fs.existsSync(themeCssPath)) {
+        fs.copyFileSync(themeCssPath, path.join(distDir, 'theme.css'));
+        console.log(`🎨 Structural Theme injected: ${themeName}`);
+        hasTheme = true;
+    } else if (fs.existsSync(legacyCssPath)) {
+        fs.copyFileSync(legacyCssPath, path.join(distDir, 'theme.css'));
+        console.log(`🎨 Legacy Theme injected: ${themeName}`);
         hasTheme = true;
     }
 
+    // 2. Resolve Layout (Structural Theme fallback to Global)
+    const themeLayoutPath = path.join(themeDir, 'layout.html');
     let layoutHtml = '<slot></slot>';
-    if (fs.existsSync(layoutPath)) {
+    if (fs.existsSync(themeLayoutPath)) {
+        layoutHtml = fs.readFileSync(themeLayoutPath, 'utf8');
+        console.log(`🏗️  Structural layout loaded for theme: ${themeName}`);
+    } else if (fs.existsSync(layoutPath)) {
         layoutHtml = fs.readFileSync(layoutPath, 'utf8');
-        console.log('🏗️  Global layout loaded.');
+        console.log('🏗️  Global fallback layout loaded.');
     }
 
     const pages = fs.readdirSync(srcPagesDir).filter(f => f.endsWith('.html'));
@@ -299,9 +264,21 @@ function build() {
         
         let fullHtml = layoutHtml.replace('<slot></slot>', pageContentRaw);
         
+        if (!config.search) {
+            fullHtml = fullHtml.replace(/<include\s+src=["']searchbar\.html["']\s*><\/include>/g, '');
+        }
+        
+        // 3. Resolve Includes (Theme Component fallback to Global Component)
         fullHtml = fullHtml.replace(includeRegex, (m, compFile) => {
-            const cPath = path.join(srcComponentsDir, compFile);
-            return fs.existsSync(cPath) ? fs.readFileSync(cPath, 'utf8') : `<!-- Component missing: ${compFile} -->`;
+            const themeCompPath = path.join(themeDir, 'components', compFile);
+            const globalCompPath = path.join(srcComponentsDir, compFile);
+            
+            if (fs.existsSync(themeCompPath)) {
+                return fs.readFileSync(themeCompPath, 'utf8');
+            } else if (fs.existsSync(globalCompPath)) {
+                return fs.readFileSync(globalCompPath, 'utf8');
+            }
+            return `<!-- Component missing: ${compFile} -->`;
         });
 
         let seoTags = `<meta property="og:title" content="${pageTitle}">\n`;
@@ -343,11 +320,22 @@ function build() {
             finalUrlPath = page === 'index.html' && config.cleanUrls ? '/' : page;
         }
         
-        compiledPages.push(finalUrlPath);
+        const checkPath = finalUrlPath.startsWith('/') ? finalUrlPath : '/' + finalUrlPath;
+        let isDisallowed = false;
+        if (config.disallow && Array.isArray(config.disallow)) {
+            isDisallowed = config.disallow.some(rule => checkPath.startsWith(rule.startsWith('/') ? rule : '/' + rule));
+        }
+        
+        if (page !== '404.html' && !isDisallowed) {
+            compiledPages.push(finalUrlPath);
+        }
 
-        if (config.search) {
+        if (config.search && page !== '404.html' && !isDisallowed) {
             const cleanText = fullHtml.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
-            searchDatabase.push({ url: finalUrlPath, title: pageTitle, content: cleanText });
+            // Prevent exact duplicates just in case
+            if (!searchDatabase.find(item => item.url === finalUrlPath)) {
+                searchDatabase.push({ url: finalUrlPath, title: pageTitle, content: cleanText });
+            }
         }
     });
 
@@ -357,6 +345,22 @@ function build() {
             `\n</urlset>`;
         fs.writeFileSync(path.join(distDir, 'sitemap.xml'), xml, 'utf8');
         console.log('✅ Sitemap created.');
+        
+        let robotsTxt = `User-agent: *\nAllow: /\n`;
+        if (config.disallow && Array.isArray(config.disallow)) {
+            config.disallow.forEach(rule => {
+                robotsTxt += `Disallow: ${rule.startsWith('/') ? rule : '/' + rule}\n`;
+            });
+        }
+        robotsTxt += `\nSitemap: ${config.baseUrl}/sitemap.xml\n`;
+        fs.writeFileSync(path.join(distDir, 'robots.txt'), robotsTxt, 'utf8');
+        console.log('✅ robots.txt created.');
+    } else {
+        const sitemapPath = path.join(distDir, 'sitemap.xml');
+        if (fs.existsSync(sitemapPath)) fs.unlinkSync(sitemapPath);
+        
+        const robotsPath = path.join(distDir, 'robots.txt');
+        if (fs.existsSync(robotsPath)) fs.unlinkSync(robotsPath);
     }
 
     if (config.search) {
@@ -364,7 +368,7 @@ function build() {
         console.log('✅ Search index created.');
     }
 
-    console.log('🎉 v1.1.1 Build complete! Check dist/ folder.');
+    console.log('🎉 v1.2.0 Build complete! Check dist/ folder.');
 }
 
 build();

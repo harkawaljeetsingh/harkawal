@@ -1,0 +1,12 @@
+:root { --bg-color: #121212; --text-color: #ffffff; --glass-bg: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+.bg-light { background-color: transparent !important; }
+.tt-glass-panel { background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+.btn-custom { background: var(--primary-gradient); border: none; color: white; padding: 10px 24px; border-radius: 8px; transition: all 0.3s ease; }
+.btn-custom:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3); color: white; }
+.harkawal-search-wrapper { max-width: 600px; margin: 0 auto; position: relative; }
+#hk-search-input { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: white; border-radius: 50px; padding: 0.8rem 1.5rem; backdrop-filter: blur(10px); transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+#hk-search-input:focus { background: rgba(255, 255, 255, 0.1); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4), 0 8px 30px rgba(0,0,0,0.4); border-color: #10b981; color: white; outline: none; }
+#hk-search-results { background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden; margin-top: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+#hk-search-results .list-group-item { background: transparent; color: var(--text-color); border-color: rgba(255,255,255,0.05); padding: 1rem 1.5rem; transition: all 0.2s ease; border-left: 4px solid transparent; }
+#hk-search-results .list-group-item:hover { background: rgba(16, 185, 129, 0.1); padding-left: 2rem; border-left: 4px solid #10b981; }

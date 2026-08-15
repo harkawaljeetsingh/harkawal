@@ -1,0 +1,54 @@
+<div class="harkawal-search-wrapper position-relative">
+    <div class="position-relative">
+        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted" style="font-size: 0.85rem; z-index: 4;"></i>
+        <input type="text" id="hk-search-input" class="form-control form-control-sm ps-4 bg-white" placeholder="Search docs..." autocomplete="off">
+    </div>
+    <div id="hk-search-results" class="list-group position-absolute w-100 shadow-sm mt-1" style="z-index: 1000; display: none; font-size: 0.85rem;"></div>
+</div>
+
+<script src="/search-data.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById('hk-search-input');
+    const results = document.getElementById('hk-search-results');
+    
+    if(input) {
+        input.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            results.innerHTML = '';
+            
+            if (query.length < 2) { 
+                results.style.display = 'none'; 
+                return; 
+            }
+            
+            if(window.hkSearchData) {
+                const filtered = window.hkSearchData.filter(i => 
+                    i.title.toLowerCase().includes(query) || 
+                    i.content.toLowerCase().includes(query)
+                );
+                
+                if (filtered.length > 0) {
+                    results.style.display = 'block';
+                    filtered.slice(0, 5).forEach(item => {
+                        const a = document.createElement('a'); 
+                        a.href = item.url; 
+                        a.className = 'list-group-item list-group-item-action border-0 border-bottom py-2'; 
+                        a.innerHTML = `<strong class="text-primary">${item.title}</strong>`; 
+                        results.appendChild(a);
+                    });
+                } else {
+                    results.style.display = 'block'; 
+                    results.innerHTML = '<div class="list-group-item text-muted border-0 py-2">No results found</div>';
+                }
+            }
+        });
+        
+        document.addEventListener('click', (e) => { 
+            if (!e.target.closest('.harkawal-search-wrapper')) {
+                results.style.display = 'none'; 
+            }
+        });
+    }
+});
+</script>
