@@ -1,6 +1,6 @@
-# 🚀 Harkawal Static Site Generator (v1.2.0)
+# 🚀 Harkawal Static Site Generator (v1.2.1)
 
-![Version](https://img.shields.io/badge/version-1.2.0-blue)
+![Version](https://img.shields.io/badge/version-1.2.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)
 
@@ -136,4 +136,4 @@ The compiler will automatically detect your folder and use your custom layout fo
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT
